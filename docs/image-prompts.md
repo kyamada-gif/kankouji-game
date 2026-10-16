@@ -4,7 +4,7 @@
 
 1. 下のプロンプトで画像を生成する（**横4:3、2000×1500px 推奨**）
 2. `public/images/stage-1.webp` などに置く
-3. `src/data/stages.ts` の該当段階に `image: '/images/stage-1.webp'` を追加
+3. `src/data/stages.ts` の該当段階に `image: 'images/stage-1.webp'`（先頭に `/` を付けない） を追加
 4. 画面右上の「位置編集（開発用）」で、危険の円を画像の中の危険な人・物に合わせる
 5. 「JSONをコピー」した座標を `src/data/hazards.ts` に反映
 

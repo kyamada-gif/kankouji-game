@@ -1,7 +1,7 @@
 import type { Stage } from '../types';
 
 // image に public/ 以下のパスを入れると、その段階は SVG の代わりに画像を表示する。
-// 例：image: '/images/stage-1.webp'（2000x1500 / 4:3 推奨）
+// 例：image: 'images/stage-1.webp'（先頭に / を付けない。2000x1500 / 4:3 推奨）
 export const STAGES: Stage[] = [
   { id: 1, name: '着工・仮設', summary: '仮囲い・ゲート・現場事務所・仮設電気をつくり、更地を整える。' },
   { id: 2, name: '土工・山留め・杭', summary: '山留めで周りの土を押さえながら地下を掘る。杭を打ち、残土を運び出す。' },

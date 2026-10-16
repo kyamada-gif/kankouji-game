@@ -245,7 +245,7 @@ export function Scene(props: Props) {
         <Defs />
         <g id="scene-root">
           {stage.image ? (
-            <image href={stage.image} x={0} y={0} width={W} height={H} preserveAspectRatio="xMidYMid slice" />
+            <image href={import.meta.env.BASE_URL + stage.image} x={0} y={0} width={W} height={H} preserveAspectRatio="xMidYMid slice" />
           ) : (
             <StageArt stage={stage.id} />
           )}
