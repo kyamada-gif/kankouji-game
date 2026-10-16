@@ -1203,7 +1203,7 @@ blockquote {
 .industry {
   grid-row: 2 / 4;
   display: grid;
-  grid-template-columns: 250px minmax(0, 1fr) 400px;
+  grid-template-columns: minmax(0, 1fr) 400px;
   grid-template-rows: auto minmax(0, 1fr);
   min-height: 0;
 }
@@ -1965,4 +1965,97 @@ button.primary {
 
 .usage-start {
   margin: 0 0 14px;
+}
+
+/* ---------- ⑤ ルールのドロップダウン ---------- */
+.rule-menu {
+  position: relative;
+}
+
+.rule-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  max-width: 340px;
+  padding: 5px 12px 5px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 13.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rule-menu-btn[aria-expanded='true'] {
+  border-color: var(--ink);
+}
+
+.caret {
+  margin-left: 6px;
+  font-size: 11px;
+  color: var(--ink-2);
+}
+
+.rule-menu-list {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 6px);
+  z-index: 20;
+  width: 340px;
+  max-height: min(70vh, 640px);
+  overflow-y: auto;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+}
+
+.rule-menu-list ul {
+  list-style: none;
+  margin: 0 0 6px;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.rule-menu-list li button {
+  display: grid;
+  gap: 1px;
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: none;
+  text-align: left;
+}
+
+.rule-menu-list li button:hover {
+  background: var(--surface-2);
+}
+
+.rule-menu-list li button[aria-selected='true'] {
+  border-color: #d99a00;
+  background: #fff6d6;
+  color: #1d2024;
+}
+
+.rule-menu-list strong {
+  font-size: 13.5px;
+}
+
+.rule-menu-list span {
+  font-size: 12px;
+  color: var(--ink-2);
+}
+
+.rule-menu-clear {
+  width: 100%;
+  padding: 6px;
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  background: none;
+  font-size: 13px;
 }

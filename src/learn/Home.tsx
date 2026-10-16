@@ -36,15 +36,6 @@ export function Home({ done, onStart, onFree }: Props) {
             各章はガイドつきで、画面が自動で切り替わります。気になる章から始めてもかまいません。
           </p>
         </div>
-        <div className="home-progress">
-          <strong>
-            {done.size} / {CHAPTERS.length}
-          </strong>
-          <span>章を見終わりました</span>
-          <button type="button" className="primary" onClick={() => onStart(next < 0 ? 0 : next)}>
-            {done.size === 0 ? '最初から始める' : next < 0 ? 'もう一度最初から' : `続きから：${next + 1}. ${CHAPTERS[next].title}`}
-          </button>
-        </div>
       </section>
 
       <ol className="road">

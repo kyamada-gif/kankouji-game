@@ -4,6 +4,7 @@ import { RULES } from './rules';
 import { Diagram } from './Diagram';
 import { BuildingTree } from './BuildingTree';
 import { IndustryPanel } from './IndustryPanel';
+import { RuleMenu } from './RuleMenu';
 import type { PanelState } from './IndustryPanel';
 import type { IndState } from './indState';
 
@@ -74,6 +75,10 @@ export function IndustryView({
             </button>
           ))}
         </div>
+        <RuleMenu
+          selected={rule?.id ?? null}
+          onPick={(id) => onChange({ building: false, panel: id ? { type: 'rule', id } : { type: 'intro' } })}
+        />
         <button type="button" className="building-btn" aria-pressed={building} onClick={() => setBuilding(!building)}>
           {building ? (
             '← 構造図に戻る'
@@ -85,32 +90,6 @@ export function IndustryView({
           )}
         </button>
       </div>
-
-      <nav className="ind-rules" aria-label="ルール">
-        <p className="eyebrow">
-          <Num n={5} />
-          ルール
-        </p>
-        <ul>
-          {RULES.map((r) => (
-            <li key={r.id}>
-              <button
-                type="button"
-
-                aria-pressed={rule?.id === r.id}
-                onClick={() => {
-                  setBuilding(false);
-                  setPanel(rule?.id === r.id ? { type: 'intro' } : { type: 'rule', id: r.id });
-                }}
-              >
-                <strong>{r.name}</strong>
-                <span>{r.summary}</span>
-              </button>
-            </li>
-          ))}
-        </ul>
-        <p className="provisional">※ 法令の内容は仮です（要確認）</p>
-      </nav>
 
       <div className="ind-canvas">
         {building ? (

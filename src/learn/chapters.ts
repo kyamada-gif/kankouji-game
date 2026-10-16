@@ -360,7 +360,7 @@ export const CHAPTERS: Chapter[] = [
       },
       {
         title: '⑤ ルール：丸投げの禁止',
-        text: '左の「ルール」を押すと、図の中でそのルールが効いている場所が光ります。請けた工事をそのまま下請に丸投げしてはいけません。',
+        text: '上の⑤「ルール」を押すと一覧が開き、選んだルールが効いている場所が図の中で光ります。請けた工事をそのまま下請に丸投げしてはいけません。',
         apply: { screen: 'industry', ind: { panel: { type: 'rule', id: 'noLump' } } },
       },
       {
@@ -416,8 +416,8 @@ export const USAGE_TOUR: Chapter = {
       apply: { screen: 'industry', ind: { flow: 'money', method: 'separate' } },
     },
     {
-      title: '⑤ 左のルールを押す',
-      text: '左の列のルールを押すと、そのルールが効いている場所が図の中で光り、右に説明が出ます。今は「請負と指示の区分」。',
+      title: '⑤ ルールを選ぶ',
+      text: '上の⑤「ルール」を押すと一覧が開きます。ルールを選ぶと、効いている場所が図の中で光り、右に説明が出ます。今は「請負と指示の区分」。',
       apply: { screen: 'industry', ind: { panel: { type: 'rule', id: 'orderLine' } } },
     },
     {
