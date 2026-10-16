@@ -114,58 +114,6 @@ export function TowerCrane({ x = 1440, trolleyX, hookY, children }: { x?: number
   );
 }
 
-type TruckKind = 'dump' | 'mixer' | 'flat-pipe' | 'flat-scrap';
-
-export function Truck({ x, kind }: { x: number; kind: TruckKind }) {
-  const y = GROUND;
-  let bed: ReactNode;
-  if (kind === 'dump')
-    bed = (
-      <g>
-        <rect x={x + 6} y={y - 66} width={134} height={40} fill="#5e6a52" stroke="#3a4232" />
-        <path d={`M${x + 8} ${y - 66} Q${x + 70} ${y - 92} ${x + 138} ${y - 66} Z`} fill="#6d563f" />
-      </g>
-    );
-  else if (kind === 'mixer')
-    bed = (
-      <g>
-        <ellipse cx={x + 76} cy={y - 56} rx={70} ry={26} fill="#e4e1d9" stroke="#8a877f" transform={`rotate(-12 ${x + 76} ${y - 56})`} />
-        <path d={`M${x + 20} ${y - 62} q40 -18 110 -14`} stroke="#b23a33" strokeWidth={3} fill="none" />
-      </g>
-    );
-  else
-    bed = (
-      <g>
-        <rect x={x + 6} y={y - 32} width={136} height={6} fill="#6a6d70" />
-        {kind === 'flat-pipe' ? (
-          [0, 1, 2, 3].map((i) => <rect key={i} x={x + 8} y={y - 38 - i * 5} width={130} height={4} rx={2} fill="url(#g-metal)" stroke="#6e7377" strokeWidth={0.4} />)
-        ) : (
-          <g>
-            {[0, 1, 2].map((i) => (
-              <rect key={i} x={x + 10 + i * 6} y={y - 40 - i * 7} width={120 - i * 12} height={7} fill="#9ea3a7" stroke="#6e7377" strokeWidth={0.5} />
-            ))}
-            <rect x={x + 60} y={y - 58} width={60} height={10} fill="#d6d5cf" />
-          </g>
-        )}
-      </g>
-    );
-  return (
-    <g>
-      <ellipse cx={x + 95} cy={y} rx={100} ry={4} fill="#000" opacity={0.2} />
-      <rect x={x} y={y - 28} width={190} height={10} fill="#2f2f2f" />
-      {bed}
-      <path d={`M${x + 146} ${y - 22} V${y - 74} H${x + 176} L${x + 190} ${y - 50} V${y - 22} Z`} fill="#e9e6df" stroke="#7d7a74" />
-      <path d={`M${x + 160} ${y - 70} H${x + 175} L${x + 186} ${y - 50} H${x + 160} Z`} fill="#6f8798" />
-      {[x + 26, x + 56, x + 166].map((cx) => (
-        <g key={cx}>
-          <circle cx={cx} cy={y - 12} r={12} fill="#1f1f1f" />
-          <circle cx={cx} cy={y - 12} r={5} fill="#777" />
-        </g>
-      ))}
-    </g>
-  );
-}
-
 /** 工事用エレベーター（ロングスパン）。overloaded で荷を積みすぎた状態を描く */
 export function ConstructionLift({ overloaded = false }: { overloaded?: boolean }) {
   const x0 = 392;

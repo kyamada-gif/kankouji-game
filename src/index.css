@@ -1004,3 +1004,160 @@ blockquote {
 .spot dd {
   margin: 0;
 }
+
+/* ---------- C. 搬入・搬出 ---------- */
+.truck-in {
+  animation: drive-in 1.8s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+@keyframes drive-in {
+  from {
+    transform: translateX(var(--dx));
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.route-line {
+  stroke-dasharray: 14 10;
+  animation: flow-move 0.7s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .truck-in,
+  .route-line {
+    animation: none;
+  }
+}
+
+.route-line {
+  animation-name: route-move;
+}
+
+@keyframes route-move {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+
+.dir {
+  display: inline-block;
+  padding: 0 8px;
+  border-radius: 4px;
+  background: var(--ink);
+  color: var(--surface);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.dir-out {
+  background: #7a4a1e;
+  color: #fff;
+}
+
+.logi {
+  display: grid;
+  gap: 6px;
+  margin: 8px 0 12px;
+}
+
+.logi div {
+  display: grid;
+  grid-template-columns: 6.5em 1fr;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  font-size: 14px;
+}
+
+.logi dt {
+  font-weight: 700;
+}
+
+.logi dd {
+  margin: 0;
+}
+
+.logi .logi-mech {
+  background: #e7eefb;
+  border: 2px solid var(--mech);
+  color: #142a52;
+}
+
+.panel-sub {
+  margin: 18px 0 6px;
+  font-size: 15px;
+}
+
+.lift-strip {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+}
+
+.lift-strip li {
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  padding: 6px 2px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  text-align: center;
+}
+
+.lift-strip li.now {
+  outline: 3px solid var(--accent);
+}
+
+.ls-no {
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.ls-lift {
+  font-size: 10.5px;
+  line-height: 1.25;
+  min-height: 2.6em;
+}
+
+.ls-mech {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--mech);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.ls-mech.off {
+  background: transparent;
+  color: var(--ink-2);
+}
+
+.points {
+  margin-top: 18px;
+  padding: 12px 14px;
+  border: 2px solid var(--accent);
+  border-radius: 10px;
+}
+
+.points h3 {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+
+.points ul {
+  margin: 0;
+  padding-left: 1.2em;
+  font-size: 14px;
+  display: grid;
+  gap: 4px;
+}

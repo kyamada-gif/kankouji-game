@@ -1,7 +1,7 @@
 import type { StageId } from '../types';
 import { Building } from './Building';
 import { B1_FLOOR, EXC_BOTTOM, GROUND, floorY, liftY } from './geometry';
-import { ConstructionLift, Excavator, MobileCrane, Scaffold, TowerCrane, Truck } from './machines';
+import { ConstructionLift, Excavator, MobileCrane, Scaffold, TowerCrane } from './machines';
 import {
   BackFence,
   Barricade,
@@ -48,7 +48,6 @@ function Stage1() {
       {/* 仮設水道 */}
       <path d={`M1615 ${GROUND} V${GROUND - 26} h8`} stroke="#2e63c8" strokeWidth={2.5} fill="none" />
       <rect x={1621} y={GROUND - 29} width={5} height={5} fill="#9a9da0" />
-      <Truck x={40} kind="flat-scrap" />
     </g>
   );
 }
@@ -73,7 +72,6 @@ function Stage2() {
         <Slings hx={1180} hy={1250} x0={1120} x1={1240} y={1268} />
         <SteelBundle x0={1120} x1={1240} y={1268} />
       </MobileCrane>
-      <Truck x={40} kind="dump" />
     </g>
   );
 }
@@ -88,7 +86,6 @@ function Stage3() {
       {/* 危険：破損したコード */}
       <CordReel x={1060} y={B1_FLOOR} />
       <Cord d={`M1068 ${B1_FLOOR - 10} Q1100 ${B1_FLOOR - 1} 1140 ${B1_FLOOR - 2} T1256 ${B1_FLOOR - 26}`} damage={[1140, B1_FLOOR - 2]} />
-      <Truck x={40} kind="mixer" />
     </g>
   );
 }
@@ -107,7 +104,6 @@ function Stage4() {
         <Slings hx={1000} hy={470} x0={960} x1={1040} y={480} />
         <rect x={960} y={480} width={80} height={14} fill="url(#p-ply)" />
       </TowerCrane>
-      <Truck x={40} kind="mixer" />
     </g>
   );
 }
@@ -135,7 +131,6 @@ function Stage5() {
       </TowerCrane>
       <RollingTower x={610} y={floorY(2)} />
       <StepLadder x={990} y={floorY(4)} h={21} />
-      <Truck x={40} kind="flat-pipe" />
     </g>
   );
 }
@@ -156,7 +151,6 @@ function Stage6() {
       <RollingTower x={700} y={floorY(5)} />
       <StepLadder x={900} y={floorY(9)} h={14} />
       <RollingTower x={620} y={floorY(10)} />
-      <Truck x={40} kind="flat-pipe" />
     </g>
   );
 }
@@ -179,7 +173,6 @@ function Stage7() {
       <Cord d={`M728 ${f3 - 10} Q780 ${f3 - 1} 820 ${f3 - 2} T930 ${f3 - 4}`} damage={[820, f3 - 2]} />
       <rect x={926} y={f3 - 12} width={20} height={12} rx={3} fill="#3c5a7a" />
       <line x1={936} y1={f3 - 12} x2={950} y2={f3 - 32} stroke="#555" strokeWidth={2} />
-      <Truck x={40} kind="flat-scrap" />
     </g>
   );
 }

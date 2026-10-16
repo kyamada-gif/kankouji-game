@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import type { CSSProperties } from 'react';
 import type { PointerEvent as RPointerEvent } from 'react';
 import type { Hazard, Mode, Stage } from '../types';
 import type { Actor } from '../data/actors';
@@ -10,6 +11,10 @@ import { StageArt } from '../scene/StageArt';
 import { ActorLayer } from '../scene/ActorLayer';
 import { Flows } from '../scene/Flows';
 import { actorBox, hitActor } from '../scene/actorGeom';
+import type { TruckDef } from '../data/trucks';
+import { Truck } from '../scene/Truck';
+import { TRUCK_LEN } from '../scene/truckGeom';
+import { GROUND } from '../scene/geometry';
 
 interface View {
   x: number;
@@ -21,6 +26,7 @@ interface Props {
   mode: Mode;
   stage: Stage;
   actors: Actor[];
+  trucks: TruckDef[];
   hazards: Hazard[];
   found: Set<string>;
   reveal: boolean;
@@ -29,6 +35,7 @@ interface Props {
   flow: FlowKind | null;
   onHit: (id: string) => void;
   onPickActor: (id: string) => void;
+  onPickTruck: (id: string) => void;
   onSelect: (id: string | null) => void;
   onMove: (id: string, x: number, y: number) => void;
 }
@@ -42,6 +49,28 @@ function fit(v: View): View {
   const w = clamp(v.w, MIN_W, W);
   const h = (w * H) / W;
   return { w, x: clamp(v.x, 0, W - w), y: clamp(v.y, 0, H - h) };
+}
+
+function hitTruck(trucks: TruckDef[], x: number, y: number) {
+  return trucks.find((t) => x >= t.x - 4 && x <= t.x + TRUCK_LEN[t.kind] + 4 && y >= GROUND - 100 && y <= GROUND + 4) ?? null;
+}
+
+/** 運ばれる道筋（動く線と矢印） */
+function TruckRoute({ t, unit }: { t: TruckDef; unit: number }) {
+  const d = 'M' + t.route.map(([x, y]) => `${x} ${y}`).join(' L');
+  const [ex, ey] = t.route[t.route.length - 1];
+  const [px, py] = t.route[t.route.length - 2];
+  const ang = (Math.atan2(ey - py, ex - px) * 180) / Math.PI;
+  const color = t.mechLoad ? '#4d8cff' : '#f2b705';
+  const a = 12 * unit;
+  return (
+    <g pointerEvents="none">
+      <path d={d} stroke="#000" strokeOpacity={0.6} strokeWidth={9} fill="none" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+      <path d={d} stroke={color} strokeWidth={5} fill="none" strokeLinejoin="round" className="route-line" vectorEffect="non-scaling-stroke" />
+      <path d={`M${-a} ${-a * 0.6} L0 0 L${-a} ${a * 0.6} Z`} fill={color} stroke="#000" strokeWidth={1} vectorEffect="non-scaling-stroke" transform={`translate(${ex} ${ey}) rotate(${ang})`} />
+      <circle cx={t.route[0][0]} cy={t.route[0][1]} r={6 * unit} fill={color} stroke="#000" strokeWidth={1} vectorEffect="non-scaling-stroke" />
+    </g>
+  );
 }
 
 const TAG_H = 18;
@@ -73,7 +102,7 @@ function layoutTags(actors: Actor[], selectedId: string | null, unit: number) {
 }
 
 export function Scene(props: Props) {
-  const { mode, stage, actors, hazards, found, reveal, editing, selectedId, flow } = props;
+  const { mode, stage, actors, trucks, hazards, found, reveal, editing, selectedId, flow } = props;
   const wrapRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const [view, setView] = useState<View>({ x: 0, y: 0, w: W });
@@ -150,7 +179,7 @@ export function Scene(props: Props) {
       const p = toSvg(e.clientX, e.clientY);
       const r = wrapRef.current!.getBoundingClientRect();
       setLens({ sx: e.clientX - r.left, sy: e.clientY - r.top, x: p.x, y: p.y });
-      setHoverId(hitActor(actors, p.x, p.y)?.id ?? null);
+      setHoverId(mode === 'C' ? (hitTruck(trucks, p.x, p.y)?.id ?? null) : (hitActor(actors, p.x, p.y)?.id ?? null));
       return;
     }
     const dx = e.clientX - d.sx;
@@ -176,6 +205,11 @@ export function Scene(props: Props) {
       if (a) props.onPickActor(a.id);
       return;
     }
+    if (mode === 'C') {
+      const t = hitTruck(trucks, p.x, p.y);
+      if (t) props.onPickTruck(t.id);
+      return;
+    }
     const hit = nearestHazard(p.x, p.y);
     if (hit) {
       props.onHit(hit.id);
@@ -186,7 +220,8 @@ export function Scene(props: Props) {
     window.setTimeout(() => setMisses((m) => m.filter((x) => x.id !== id)), 650);
   };
 
-  const tagged = mode === 'A' ? actors : actors.filter((a) => a.id === hoverId);
+  const tagged = mode === 'A' ? actors : mode === 'B' ? actors.filter((a) => a.id === hoverId) : [];
+  const selTruck = mode === 'C' ? trucks.find((t) => t.id === selectedId) : undefined;
   const lensW = (LENS_R * 2) / (k * LENS_ZOOM);
 
   return (
@@ -203,7 +238,7 @@ export function Scene(props: Props) {
           setHoverId(null);
         }}
         onPointerCancel={() => (drag.current = null)}
-        className={[editing ? 'is-editing' : '', mode === 'A' && hoverId ? 'is-pointing' : ''].join(' ')}
+        className={[editing ? 'is-editing' : '', mode !== 'B' && hoverId ? 'is-pointing' : ''].join(' ')}
         role="img"
         aria-label={`工事現場の断面図：${stage.name}`}
       >
@@ -214,6 +249,15 @@ export function Scene(props: Props) {
           ) : (
             <StageArt stage={stage.id} />
           )}
+          {trucks.map((t, i) => (
+            <g
+              key={`${stage.id}-${t.id}`}
+              className="truck-in"
+              style={{ '--dx': `${-(t.x + TRUCK_LEN[t.kind] + 60)}px`, animationDelay: `${i * 0.35}s` } as CSSProperties}
+            >
+              <Truck x={t.x} kind={t.kind} cargo={t.cargo} />
+            </g>
+          ))}
           <ActorLayer actors={actors} />
         </g>
 
@@ -240,6 +284,31 @@ export function Scene(props: Props) {
                 vectorEffect="non-scaling-stroke"
                 className={me && !sel ? 'me-ring' : undefined}
               />
+            );
+          })}
+
+        {/* C：運ばれる道筋とトラックの札 */}
+        {selTruck && <TruckRoute t={selTruck} unit={unit} />}
+        {mode === 'C' &&
+          trucks.map((t) => {
+            const len = TRUCK_LEN[t.kind];
+            const sel = t.id === selectedId;
+            const hover = t.id === hoverId;
+            const text = `${t.dir}${t.mechLoad ? '・管工事' : ''}`;
+            const fs = 12 * unit;
+            const tw = (text.length * 12 + 14) * unit;
+            const cx = Math.max(t.x + len / 2, tw / 2 + 6 * unit);
+            const fill = t.mechLoad ? '#2e63c8' : t.dir === '搬出' ? '#7a4a1e' : '#14171a';
+            return (
+              <g key={t.id} pointerEvents="none">
+                {(sel || hover) && (
+                  <rect x={t.x - 4} y={GROUND - 100} width={len + 8} height={104} rx={6} fill="none" stroke="#f2b705" strokeWidth={3} vectorEffect="non-scaling-stroke" />
+                )}
+                <rect x={cx - tw / 2} y={GROUND - 104 - 22 * unit} width={tw} height={18 * unit} rx={4 * unit} fill={sel ? '#f2b705' : fill} fillOpacity={0.92} />
+                <text x={cx} y={GROUND - 104 - 9 * unit} fontSize={fs} fill={sel ? '#111' : '#fff'} textAnchor="middle" fontWeight={700} fontFamily="'Hiragino Sans','Noto Sans JP',sans-serif">
+                  {text}
+                </text>
+              </g>
             );
           })}
 
@@ -330,7 +399,7 @@ export function Scene(props: Props) {
         </button>
       </div>
       <p className="scene-hint">
-        {mode === 'A' ? '人を押すと、その人の仕事が分かります。' : '危ないと思う人や物を押してください。'}
+        {mode === 'A' ? '人を押すと、その人の仕事が分かります。' : mode === 'B' ? '危ないと思う人や物を押してください。' : 'トラックを押すと、荷物の中身と行き先が分かります。'}
         ルーペで細部まで見えます。ドラッグで移動、ホイールで拡大。
       </p>
     </div>

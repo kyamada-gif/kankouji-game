@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import type { Hotspot, Mode, StageId } from './types';
 import { HAZARDS } from './data/hazards';
 import { ACTORS } from './data/actors';
+import { TRUCKS } from './data/trucks';
 import { STAGES } from './data/stages';
 import { Scene } from './components/Scene';
 import { HazardPanel } from './components/HazardPanel';
@@ -9,6 +10,7 @@ import { HotspotEditor } from './components/HotspotEditor';
 import { RolePanel } from './components/RolePanel';
 import type { MeTab } from './components/RolePanel';
 import { Timeline } from './components/Timeline';
+import { TruckPanel } from './components/TruckPanel';
 
 const OVERRIDE_KEY = 'kankouji:hotspots';
 
@@ -31,7 +33,7 @@ function saveOverrides(o: Record<string, Hotspot>) {
 const MODES: { id: Mode; label: string; ready: boolean }[] = [
   { id: 'A', label: '職種マップ', ready: true },
   { id: 'B', label: '危険探し', ready: true },
-  { id: 'C', label: '搬入・搬出', ready: false },
+  { id: 'C', label: '搬入・搬出', ready: true },
 ];
 
 export default function App() {
@@ -40,6 +42,7 @@ export default function App() {
   const [found, setFound] = useState<Set<string>>(new Set());
   const [hazardId, setHazardId] = useState<string | null>(null);
   const [actorId, setActorId] = useState<string | null>(null);
+  const [truckId, setTruckId] = useState<string | null>(null);
   const [meTab, setMeTab] = useState<MeTab>('overview');
   const [reveal, setReveal] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -47,6 +50,8 @@ export default function App() {
 
   const stage = STAGES[stageId - 1];
   const actors = useMemo(() => ACTORS.filter((a) => a.stage === stageId), [stageId]);
+  const trucks = useMemo(() => TRUCKS.filter((t) => t.stage === stageId), [stageId]);
+  const selectedTruck = trucks.find((t) => t.id === truckId) ?? null;
   const hazards = useMemo(
     () => HAZARDS.filter((h) => h.stage === stageId).map((h) => ({ ...h, ...overrides[h.id] })),
     [stageId, overrides],
@@ -59,6 +64,7 @@ export default function App() {
   const changeStage = (id: StageId) => {
     setStageId(id);
     setHazardId(null);
+    setTruckId(null);
     // 自分を選んでいたら、次の段階でも自分を選んだままにする
     const meNext = ACTORS.find((a) => a.stage === id && a.role === 'me');
     setActorId(selectedActor?.role === 'me' && meNext ? meNext.id : null);
@@ -125,21 +131,25 @@ export default function App() {
           mode={mode}
           stage={stage}
           actors={actors}
+          trucks={trucks}
           hazards={hazards}
           found={found}
           reveal={reveal}
           editing={editing}
-          selectedId={mode === 'A' ? actorId : hazardId}
+          selectedId={mode === 'A' ? actorId : mode === 'C' ? truckId : hazardId}
           flow={flow}
           onHit={(id) => {
             setFound((f) => new Set(f).add(id));
             setHazardId(id);
           }}
           onPickActor={pickActor}
+          onPickTruck={setTruckId}
           onSelect={setHazardId}
           onMove={(id, x, y) => patchHotspot(id, { x, y })}
         />
-        {mode === 'A' ? (
+        {mode === 'C' ? (
+          <TruckPanel stage={stage} trucks={trucks} selected={selectedTruck} onSelect={setTruckId} />
+        ) : mode === 'A' ? (
           <RolePanel stage={stage} actors={actors} selected={selectedActor} tab={meTab} onSelect={pickActor} onTab={setMeTab} />
         ) : editing ? (
           <HotspotEditor
@@ -180,7 +190,9 @@ export default function App() {
                 const n = list.filter((h) => found.has(h.id)).length;
                 return `${n}/${list.length}`;
               }
-            : (id) => (ACTORS.some((a) => a.stage === id && a.role === 'me') ? '● あなた' : null)
+            : mode === 'A'
+              ? (id) => (ACTORS.some((a) => a.stage === id && a.role === 'me') ? '● あなた' : null)
+              : (id) => `${TRUCKS.filter((t) => t.stage === id).length}台`
         }
       />
     </div>
