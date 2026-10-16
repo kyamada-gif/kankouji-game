@@ -1,4 +1,4 @@
-import { CHAPTERS } from './chapters';
+import { CHAPTERS, tourLabel, tourOf } from './chapters';
 
 interface Props {
   chapter: number;
@@ -12,15 +12,13 @@ interface Props {
 
 /** ガイドのカード（画面の左下に出る） */
 export function Coach({ chapter, step, onStep, onFinish, onClose, lifted }: Props) {
-  const c = CHAPTERS[chapter];
+  const c = tourOf(chapter);
   const s = c.steps[step];
   const last = step === c.steps.length - 1;
   return (
     <aside className={lifted ? 'coach is-lifted' : 'coach'} aria-live="polite">
       <header>
-        <span className="coach-ch">
-          {chapter + 1}. {c.title}
-        </span>
+        <span className="coach-ch">{tourLabel(chapter)}</span>
         <span className="coach-count">
           {step + 1} / {c.steps.length}
         </span>
@@ -41,7 +39,11 @@ export function Coach({ chapter, step, onStep, onFinish, onClose, lifted }: Prop
         </button>
         {last ? (
           <button type="button" className="primary" onClick={onFinish}>
-            {chapter < CHAPTERS.length - 1 ? `この章を終えて次へ（${chapter + 2}. ${CHAPTERS[chapter + 1].title}）` : 'この章を終える'}
+            {chapter < 0
+              ? '使い方ガイドを終える'
+              : chapter < CHAPTERS.length - 1
+                ? `この章を終えて次へ（${chapter + 2}. ${CHAPTERS[chapter + 1].title}）`
+                : 'この章を終える'}
           </button>
         ) : (
           <button type="button" className="primary" onClick={() => onStep(step + 1)}>

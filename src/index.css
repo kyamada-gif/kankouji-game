@@ -1859,3 +1859,110 @@ button.primary {
   background: rgba(255, 255, 255, 0.15);
   color: #fff;
 }
+
+/* ---------- 構造図の番号つき操作 ---------- */
+.num-badge {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 12px;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+.ind-step-hint {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-2);
+}
+
+.seg-label {
+  display: inline-flex;
+  align-items: center;
+}
+
+.howto-steps {
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+  counter-reset: hs;
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.howto-steps li {
+  counter-increment: hs;
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  gap: 8px;
+}
+
+.howto-steps li::before {
+  content: counter(hs);
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.usage {
+  list-style: none;
+  margin: 4px 0 16px;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.usage li {
+  display: grid;
+  grid-template-columns: 26px 1fr;
+  gap: 6px;
+  align-items: start;
+}
+
+.usage .num-badge {
+  width: 24px;
+  height: 24px;
+  margin: 1px 0 0;
+  font-size: 13px;
+}
+
+.usage strong {
+  font-size: 14.5px;
+}
+
+.usage p {
+  margin: 2px 0 0;
+  font-size: 13.5px;
+  color: var(--ink-2);
+}
+
+.usage-btn {
+  padding: 6px 12px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+.usage-btn[aria-pressed='true'] {
+  background: var(--ink);
+  color: var(--surface);
+}
+
+.usage-start {
+  margin: 0 0 14px;
+}

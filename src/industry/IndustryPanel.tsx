@@ -5,14 +5,17 @@ import { COMPANIES } from './companies';
 import type { RuleId } from './rules';
 import { RULES } from './rules';
 import { Vignette } from './Vignettes';
+import { USAGE_TOUR } from '../learn/chapters';
 import { PHOTOS } from './photos';
 
-export type PanelState = { type: 'intro' } | { type: 'layer'; id: LayerId } | { type: 'company'; id: string; from: LayerId } | { type: 'rule'; id: RuleId };
+export type PanelState =
+  { type: 'intro' } | { type: 'layer'; id: LayerId } | { type: 'company'; id: string; from: LayerId } | { type: 'rule'; id: RuleId };
 
 interface Props {
   state: PanelState;
   method: Method;
   onChange: (s: PanelState) => void;
+  onUsage: () => void;
 }
 
 function Picture({ id }: { id: LayerId }) {
@@ -25,18 +28,33 @@ function Picture({ id }: { id: LayerId }) {
   );
 }
 
+const USAGE = [
+  {
+    title: '図の層や会社の箱を押す',
+    text: '発注者から職人まで、6つの層が上から並んでいます。押すと、ここにその立場の説明と代表企業が出ます。',
+  },
+  { title: 'あなたの派遣先を切り替える', text: '上のボタンで「ゼネコン／サブコン」を切り替えると、青い印（あなた）の位置が変わります。' },
+  {
+    title: '流れを切り替える',
+    text: 'お金・契約・指示・物・人のどれかを選ぶと、図の上に矢印が出ます。まずは「指示」と「お金」がおすすめ。',
+  },
+  { title: '発注方式を切り替える', text: '一括発注・分離発注などを切り替えると、図が組み替わります。サブコンの位置の変化に注目。' },
+  { title: '左のルールを押す', text: 'そのルールが効いている場所が、図の中で光ります。' },
+  { title: 'このビルの施工体系図を見る', text: '断面図のビルに、実際にどんな会社が入っているかを見ます（社名は架空）。' },
+];
+
 function Check() {
   return <span className="tag-check">要確認</span>;
 }
 
-export function IndustryPanel({ state, method, onChange }: Props) {
+export function IndustryPanel({ state, method, onChange, onUsage }: Props) {
   if (state.type === 'layer') {
     const l = LAYERS[state.id];
     return (
       <aside className="panel">
         <article className="detail">
           <button type="button" className="back" onClick={() => onChange({ type: 'intro' })}>
-            ← 図の見方へ
+            ← 使い方へ
           </button>
           <p className="eyebrow">立場</p>
           <h2 className={state.id === 'dispatch' ? 'me-title' : undefined}>{l.name}</h2>
@@ -212,7 +230,9 @@ export function IndustryPanel({ state, method, onChange }: Props) {
             <p className="src">2026-10-16 にアクセスを確認</p>
           </section>
           <p className="provisional">
-            ※ 売上・実績は出典の記載をもとにしています。会社の特徴と「得意な分野」の文言は仮です（<Check />）。
+            ※ 売上・実績は出典の記載をもとにしています。会社の特徴と「得意な分野」の文言は仮です（
+            <Check />
+            ）。
           </p>
         </article>
       </aside>
@@ -225,7 +245,7 @@ export function IndustryPanel({ state, method, onChange }: Props) {
       <aside className="panel">
         <article className="detail">
           <button type="button" className="back" onClick={() => onChange({ type: 'intro' })}>
-            ← 図の見方へ
+            ← 使い方へ
           </button>
           <p className="eyebrow">ルール</p>
           <h2>{r.name}</h2>
@@ -249,8 +269,24 @@ export function IndustryPanel({ state, method, onChange }: Props) {
   return (
     <aside className="panel">
       <p className="eyebrow">業界のしくみ</p>
-      <h2>建設業界の立場と流れ</h2>
-      <p className="summary">建物は、たくさんの会社が「上から下へ」仕事を渡していくことでできています。その中で、あなた（青い印）がどこにいるかを見てみましょう。</p>
+      <h2>この画面の使い方</h2>
+      <p className="summary">
+        建物は、たくさんの会社が「上から下へ」仕事を渡していくことでできています。その中で、あなた（青い印）がどこにいるかを、次の順番で見ていきましょう。
+      </p>
+      <button type="button" className="primary usage-start" onClick={onUsage}>
+        ガイドで使い方を見る（{USAGE_TOUR.steps.length}ステップ）
+      </button>
+      <ol className="usage">
+        {USAGE.map((u, i) => (
+          <li key={u.title}>
+            <span className="num-badge">{i + 1}</span>
+            <div>
+              <strong>{u.title}</strong>
+              <p>{u.text}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
       <div className="logi">
         <div className="logi-mech">
           <dt>今の発注方式</dt>
@@ -259,13 +295,7 @@ export function IndustryPanel({ state, method, onChange }: Props) {
           </dd>
         </div>
       </div>
-      <p className="howto">図の見方</p>
-      <ul className="checks">
-        <li>層（帯）や会社の箱を押すと、その立場の説明が出ます。</li>
-        <li>上の「流れ」を切り替えると、お金・契約・指示・物・人の流れが矢印で出ます。</li>
-        <li>「発注方式」を切り替えると、図が組み替わります。</li>
-        <li>左のルールを押すと、図の中でそのルールが効いている場所が光ります。</li>
-      </ul>
+      <p className="howto">矢印の色</p>
       <ul className="legend ind-legend">
         {FLOWS.filter((f) => f.id !== 'none').map((f) => (
           <li key={f.id}>

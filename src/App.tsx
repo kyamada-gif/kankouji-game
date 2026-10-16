@@ -16,7 +16,7 @@ import type { IndState } from './industry/indState';
 import { IND_DEFAULT } from './industry/indState';
 import { Home } from './learn/Home';
 import { Coach } from './learn/Coach';
-import { CHAPTERS } from './learn/chapters';
+import { CHAPTERS, tourLabel, tourOf } from './learn/chapters';
 import type { Apply } from './learn/chapters';
 
 const OVERRIDE_KEY = 'kankouji:hotspots';
@@ -135,10 +135,15 @@ export default function App() {
 
   const goStep = (chapter: number, step: number) => {
     setTour({ chapter, step, open: true });
-    apply(CHAPTERS[chapter].steps[step].apply, `${chapter}-${step}-${Date.now()}`);
+    apply(tourOf(chapter).steps[step].apply, `${chapter}-${step}-${Date.now()}`);
   };
 
   const finishChapter = (chapter: number) => {
+    if (chapter < 0) {
+      setTour(null);
+      setInd(IND_DEFAULT);
+      return;
+    }
     const next = new Set(done).add(CHAPTERS[chapter].id);
     setDone(next);
     saveDone(next);
@@ -202,7 +207,7 @@ export default function App() {
         {tour && (
           <div className="crumb">
             <span>
-              ガイド：{tour.chapter + 1}. {CHAPTERS[tour.chapter].title}（{tour.step + 1}/{CHAPTERS[tour.chapter].steps.length}）
+              ガイド：{tourLabel(tour.chapter)}（{tour.step + 1}/{tourOf(tour.chapter).steps.length}）
             </span>
             {!tour.open && (
               <button type="button" onClick={() => goStep(tour.chapter, tour.step)}>
@@ -240,7 +245,7 @@ export default function App() {
           }}
         />
       ) : screen === 'industry' ? (
-        <IndustryView state={ind} onChange={(patch) => setInd((cur) => ({ ...cur, ...patch }))} />
+        <IndustryView state={ind} onChange={(patch) => setInd((cur) => ({ ...cur, ...patch }))} onUsage={() => goStep(-1, 0)} />
       ) : (
         <>
           <main className="stage-area">
