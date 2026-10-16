@@ -15,7 +15,7 @@ import { IndustryView } from './industry/IndustryView';
 import type { IndState } from './industry/indState';
 import { IND_DEFAULT } from './industry/indState';
 import { Home } from './learn/Home';
-import { Coach } from './learn/Coach';
+import { Coach, FreeCard } from './learn/Coach';
 import { CHAPTERS, tourLabel, tourOf } from './learn/chapters';
 import type { Apply } from './learn/chapters';
 
@@ -57,16 +57,15 @@ function saveDone(d: Set<string>) {
 
 type Screen = 'home' | 'site' | 'industry';
 
-const MODES: { id: Mode; label: string; ready: boolean }[] = [
-  { id: 'A', label: '職種マップ', ready: true },
-  { id: 'B', label: '危険探し', ready: true },
-  { id: 'C', label: '搬入・搬出', ready: true },
-];
+// 位置編集（開発用）は URL に ?edit を付けたときだけ出す
+const EDIT_ALLOWED = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('edit');
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('home');
   const [ind, setInd] = useState<IndState>(IND_DEFAULT);
-  const [tour, setTour] = useState<{ chapter: number; step: number; open: boolean } | null>(null);
+  const [tour, setTour] = useState<{ chapter: number; step: number } | null>(null);
+  /** 今いる章（ガイドなしで見ているときも保持） */
+  const [current, setCurrent] = useState<number | null>(null);
   const [done, setDone] = useState(loadDone);
   const [focus, setFocus] = useState<{ cx: number; cy: number; w: number } | null>(null);
   const [focusKey, setFocusKey] = useState('');
@@ -134,7 +133,8 @@ export default function App() {
   };
 
   const goStep = (chapter: number, step: number) => {
-    setTour({ chapter, step, open: true });
+    setTour({ chapter, step });
+    if (chapter >= 0) setCurrent(chapter);
     apply(tourOf(chapter).steps[step].apply, `${chapter}-${step}-${Date.now()}`);
   };
 
@@ -154,6 +154,13 @@ export default function App() {
     }
   };
 
+  const screenName = screen === 'industry' ? '構造図' : mode === 'A' ? '職種マップ' : mode === 'B' ? '危険探し' : '搬入・搬出';
+
+  const goHome = () => {
+    setTour(null);
+    setScreen('home');
+  };
+
   const patchHotspot = (id: string, patch: Partial<Hotspot>) => {
     const base = hazards.find((h) => h.id === id);
     if (!base) return;
@@ -170,57 +177,36 @@ export default function App() {
       <header className="topbar">
         <div className="brand">
           <h1>現場まるわかり</h1>
-          <p>10階建てRC造オフィスビル（試作）</p>
         </div>
-        <div className="sections" role="tablist" aria-label="画面の切替">
-          <button type="button" role="tab" aria-selected={screen === 'home'} onClick={() => setScreen('home')}>
-            ホーム<small>学ぶ順番</small>
-          </button>
-          <button type="button" role="tab" aria-selected={screen === 'industry'} onClick={() => setScreen('industry')}>
-            業界のしくみ<small>構造図</small>
-          </button>
-          <button type="button" role="tab" aria-selected={screen === 'site'} onClick={() => setScreen('site')}>
-            現場の流れ<small>断面図</small>
-          </button>
-        </div>
-        {screen === 'site' && (
-          <nav className="modes" aria-label="モード切替">
-            {MODES.map((m) => (
-              <button
-                key={m.id}
-                type="button"
-                aria-pressed={mode === m.id}
-                disabled={!m.ready}
-                onClick={() => {
-                  setMode(m.id);
-                  setEditing(false);
-                }}
-                title={m.ready ? undefined : '準備中'}
-              >
-                <span className="mode-key">{m.id}</span>
-                {m.label}
-                {!m.ready && <span className="soon">準備中</span>}
-              </button>
-            ))}
-          </nav>
-        )}
-        {tour && (
-          <div className="crumb">
-            <span>
-              ガイド：{tourLabel(tour.chapter)}（{tour.step + 1}/{tourOf(tour.chapter).steps.length}）
-            </span>
-            {!tour.open && (
-              <button type="button" onClick={() => goStep(tour.chapter, tour.step)}>
-                ガイドに戻る
-              </button>
-            )}
-            <button type="button" className="crumb-end" onClick={() => setTour(null)} aria-label="ガイドを終了">
-              終了
+        {screen !== 'home' && (
+          <>
+            <button type="button" className="home-btn" onClick={goHome}>
+              ← ホーム
             </button>
-          </div>
+            {tour ? (
+              <div className="where">
+                <strong>{tourLabel(tour.chapter)}</strong>
+                <span className="screen-tag">{screenName}</span>
+                <span className="where-bar" aria-hidden="true">
+                  {tourOf(tour.chapter).steps.map((_, i) => (
+                    <i key={i} className={i <= tour.step ? 'on' : undefined} />
+                  ))}
+                </span>
+                <span className="where-count">
+                  {tour.step + 1} / {tourOf(tour.chapter).steps.length}
+                </span>
+              </div>
+            ) : (
+              current !== null && (
+                <div className="where">
+                  <strong>{tourLabel(current)}</strong>
+                  <span className="screen-tag">{screenName}</span>
+                </div>
+              )
+            )}
+          </>
         )}
-        <p className="disclaimer">※ 安全ルール・法令の数値、説明の文言は専門家の確認前の仮の内容です</p>
-        {screen === 'site' && mode === 'B' && (
+        {EDIT_ALLOWED && screen === 'site' && mode === 'B' && (
           <button
             type="button"
             className="edit-toggle"
@@ -241,6 +227,7 @@ export default function App() {
           onStart={(i) => goStep(i, 0)}
           onFree={(i) => {
             setTour(null);
+            setCurrent(i);
             apply(CHAPTERS[i].steps[0].apply, `free-${i}-${Date.now()}`);
           }}
         />
@@ -322,16 +309,18 @@ export default function App() {
         </>
       )}
 
-      {tour?.open && screen !== 'home' && (
-        <Coach
-          chapter={tour.chapter}
-          step={tour.step}
-          lifted={screen === 'site'}
-          onStep={(i) => goStep(tour.chapter, i)}
-          onFinish={() => finishChapter(tour.chapter)}
-          onClose={() => setTour({ ...tour, open: false })}
-        />
-      )}
+      {screen !== 'home' &&
+        (tour ? (
+          <Coach
+            chapter={tour.chapter}
+            step={tour.step}
+            lifted={screen === 'site'}
+            onStep={(i) => goStep(tour.chapter, i)}
+            onFinish={() => finishChapter(tour.chapter)}
+          />
+        ) : (
+          current !== null && <FreeCard chapter={current} lifted={screen === 'site'} onGuide={() => goStep(current, 0)} />
+        ))}
     </div>
   );
 }

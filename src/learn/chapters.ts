@@ -24,12 +24,14 @@ export interface Step {
   apply: Apply;
 }
 
+export type ScreenName = '構造図' | '職種マップ' | '危険探し' | '搬入・搬出';
+
 export interface Chapter {
   id: string;
   title: string;
   summary: string;
-  /** 見る画面の説明 */
-  where: string;
+  /** 使う画面 */
+  where: ScreenName[];
   minutes: number;
   steps: Step[];
 }
@@ -42,7 +44,7 @@ export const CHAPTERS: Chapter[] = [
     id: 'overview',
     title: '全体像',
     summary: '建物は、たくさんの会社と7つの段階でできている。まずはざっと全体を見る。',
-    where: '業界のしくみ → 現場の流れ',
+    where: ['構造図', '職種マップ'],
     minutes: 3,
     steps: [
       {
@@ -81,7 +83,7 @@ export const CHAPTERS: Chapter[] = [
     id: 'industry',
     title: '業界のしくみ',
     summary: '発注者・ゼネコン・サブコン・職人。それぞれの立場と、あなたの立ち位置を知る。',
-    where: '業界のしくみ（構造図）',
+    where: ['構造図'],
     minutes: 5,
     steps: [
       {
@@ -135,7 +137,7 @@ export const CHAPTERS: Chapter[] = [
     id: 'stages',
     title: '建物ができる流れ',
     summary: '着工から引渡しまで7段階。それぞれの時期に何が起きているかを見る。',
-    where: '現場の流れ（断面図）',
+    where: ['職種マップ'],
     minutes: 5,
     steps: [
       {
@@ -179,7 +181,7 @@ export const CHAPTERS: Chapter[] = [
     id: 'people',
     title: '現場の人',
     summary: 'どんな職種の人が、いつ・どこで働いているか。管工事とどう関わるか。',
-    where: '現場の流れ → A. 職種マップ',
+    where: ['職種マップ'],
     minutes: 6,
     steps: [
       {
@@ -223,7 +225,7 @@ export const CHAPTERS: Chapter[] = [
     id: 'me',
     title: 'あなたの仕事',
     summary: '管工事の施工管理は、着工から引渡しまでずっと関わる。時期ごとの仕事と設備のしくみ。',
-    where: '現場の流れ → A. 職種マップ（あなた）',
+    where: ['職種マップ'],
     minutes: 7,
     steps: [
       {
@@ -262,7 +264,7 @@ export const CHAPTERS: Chapter[] = [
     id: 'goods',
     title: '物の流れ',
     summary: '時期によってゲートに来るトラックの荷が変わる。揚重の手段の移り変わり。',
-    where: '現場の流れ → C. 搬入・搬出',
+    where: ['搬入・搬出'],
     minutes: 4,
     steps: [
       {
@@ -301,7 +303,7 @@ export const CHAPTERS: Chapter[] = [
     id: 'safety',
     title: '安全',
     summary: '現場の危険を見つけ、誰にどう伝えるかを身につける。',
-    where: '現場の流れ → B. 危険探し',
+    where: ['危険探し'],
     minutes: 6,
     steps: [
       {
@@ -335,7 +337,7 @@ export const CHAPTERS: Chapter[] = [
     id: 'rules',
     title: 'ルールとお金',
     summary: 'お金・契約の流れ、発注方式の違い、守るべきルール。最後にこのビルの施工体系図。',
-    where: '業界のしくみ（構造図）',
+    where: ['構造図'],
     minutes: 7,
     steps: [
       {
@@ -387,7 +389,7 @@ export const USAGE_TOUR: Chapter = {
   id: 'usage-industry',
   title: '画面の使い方',
   summary: '業界のしくみの画面で、どのボタンを何の順番で使うか。',
-  where: '業界のしくみ（構造図）',
+  where: ['構造図'],
   minutes: 2,
   steps: [
     {

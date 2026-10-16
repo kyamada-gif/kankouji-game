@@ -49,7 +49,14 @@ export function Home({ done, onStart, onFree }: Props) {
               </p>
               <h3>{c.title}</h3>
               <p className="road-sum">{c.summary}</p>
-              <p className="road-where">見る画面：{c.where}</p>
+              <p className="road-where">
+                使う画面
+                {c.where.map((w) => (
+                  <span key={w} className="screen-tag">
+                    {w}
+                  </span>
+                ))}
+              </p>
               <div className="road-actions">
                 <button type="button" className="primary" onClick={() => onStart(i)}>
                   ガイドで見る（{c.steps.length}ステップ）
@@ -62,6 +69,7 @@ export function Home({ done, onStart, onFree }: Props) {
           </li>
         ))}
       </ol>
+      <p className="home-note">※ 安全ルール・法令の数値、説明の文言は、専門家の確認前の仮の内容です。</p>
     </div>
   );
 }
