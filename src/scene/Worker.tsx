@@ -41,7 +41,7 @@ export interface WorkerLook {
   helmet?: string;
   /** ヘルメットのライン（ゼネコン社員の緑線など） */
   helmetLine?: string;
-  /** ヘルメット側面の会社ステッカー色 */
+  /** ヘルメット側面の会社ステッカー色（helmet に "none" でヘルメットなし） */
   sticker?: string;
   /** 鳶のニッカズボン */
   nikka?: boolean;
@@ -484,21 +484,28 @@ export function Worker(p: WorkerProps) {
             <rect x={-8.5} y={-161} width={17} height={4.6} rx={1.5} fill="none" stroke="#2e3236" strokeWidth={0.8} />
           </g>
         )}
-        {/* ヘルメット */}
-        <path d="M-12.5,-161 C-12.5,-177 12.5,-177 12.5,-161 Z" fill={helmet} />
-        <path d="M-12.5,-161 C-12.5,-177 12.5,-177 12.5,-161 Z" fill="url(#g-shade-x)" opacity={0.6} />
-        {p.helmetLine && <path d="M-12.4,-165 Q0,-167.5 12.4,-165" stroke={p.helmetLine} strokeWidth={2.4} fill="none" />}
-        <path d="M-14.5,-161.5 Q0,-158.5 15.5,-161.5 L15.5,-159.5 Q0,-156 -14.5,-159.5 Z" fill={helmet} stroke="#000" strokeOpacity={0.25} strokeWidth={0.6} />
-        <ellipse cx={-4} cy={-171.5} rx={4} ry={2} fill="#fff" opacity={0.4} />
-        {p.sticker && <rect x={4} y={-171} width={6} height={4} fill={p.sticker} />}
-        {chinstrap ? (
-          <path d="M-11.5,-160 Q-10,-150 -4,-147 Q0,-145.8 4,-147 Q10,-150 11.5,-160" stroke="#1c1c1c" strokeWidth={1.7} fill="none" />
+        {helmet === 'none' ? (
+          // ヘルメットなし（発注者・設計者など事務所の人）
+          <path d="M-10,-160 Q-11,-172 0,-171.5 Q11,-172 10,-160 Q8,-166 0,-166 Q-8,-166 -10,-160 Z" fill="#2a241f" />
         ) : (
-          <g stroke="#1c1c1c" strokeWidth={1.7} fill="none">
-            <path d="M-11.5,-160 Q-14,-150 -13,-140" />
-            <path d="M11.5,-160 Q14.5,-151 13.5,-141" />
-            <rect x={-14.5} y={-141} width={3} height={2.6} fill="#1c1c1c" stroke="none" />
-          </g>
+          <>
+          {/* ヘルメット */}
+          <path d="M-12.5,-161 C-12.5,-177 12.5,-177 12.5,-161 Z" fill={helmet} />
+          <path d="M-12.5,-161 C-12.5,-177 12.5,-177 12.5,-161 Z" fill="url(#g-shade-x)" opacity={0.6} />
+          {p.helmetLine && <path d="M-12.4,-165 Q0,-167.5 12.4,-165" stroke={p.helmetLine} strokeWidth={2.4} fill="none" />}
+          <path d="M-14.5,-161.5 Q0,-158.5 15.5,-161.5 L15.5,-159.5 Q0,-156 -14.5,-159.5 Z" fill={helmet} stroke="#000" strokeOpacity={0.25} strokeWidth={0.6} />
+          <ellipse cx={-4} cy={-171.5} rx={4} ry={2} fill="#fff" opacity={0.4} />
+          {p.sticker && <rect x={4} y={-171} width={6} height={4} fill={p.sticker} />}
+          {chinstrap ? (
+            <path d="M-11.5,-160 Q-10,-150 -4,-147 Q0,-145.8 4,-147 Q10,-150 11.5,-160" stroke="#1c1c1c" strokeWidth={1.7} fill="none" />
+          ) : (
+            <g stroke="#1c1c1c" strokeWidth={1.7} fill="none">
+              <path d="M-11.5,-160 Q-14,-150 -13,-140" />
+              <path d="M11.5,-160 Q14.5,-151 13.5,-141" />
+              <rect x={-14.5} y={-141} width={3} height={2.6} fill="#1c1c1c" stroke="none" />
+            </g>
+          )}
+          </>
         )}
         {carried}
       </g>

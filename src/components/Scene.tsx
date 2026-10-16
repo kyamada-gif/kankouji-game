@@ -33,6 +33,9 @@ interface Props {
   editing: boolean;
   selectedId: string | null;
   flow: FlowKind | null;
+  /** ガイドが指定する拡大位置（focusKey が変わったときに適用） */
+  focus?: { cx: number; cy: number; w: number } | null;
+  focusKey?: string;
   onHit: (id: string) => void;
   onPickActor: (id: string) => void;
   onPickTruck: (id: string) => void;
@@ -112,6 +115,15 @@ export function Scene(props: Props) {
   const [lens, setLens] = useState<{ sx: number; sy: number; x: number; y: number } | null>(null);
   const [hoverId, setHoverId] = useState<string | null>(null);
   const drag = useRef<{ sx: number; sy: number; view: View; k: number; moved: boolean; hazardId: string | null } | null>(null);
+
+  useEffect(() => {
+    const f = props.focus;
+    if (!f) return;
+    const w = clamp(f.w, MIN_W, W);
+    setView(fit({ w, x: f.cx - w / 2, y: f.cy - (w * H) / W / 2 }));
+    // focusKey が変わったときだけ動かす
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.focusKey]);
 
   const vh = (view.w * H) / W;
   const k = Math.min(size.w / view.w, size.h / vh); // 画面px / シーン単位
